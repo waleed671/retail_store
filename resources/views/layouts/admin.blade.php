@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.45.2/dist/apexcharts.min.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: #f5f7ff; }
@@ -129,6 +130,15 @@
                     ['admin.expenses.index',          'Expenses',         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>'],
                     ['admin.reports.index',           'Reports',          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'],
                 ];
+                $linksInventory = [
+                    ['admin.warehouses.index',         'Warehouses',         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4z"/>'],
+                    ['admin.stock-movements.index',    'Stock Movements',    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>'],
+                    ['admin.units.index',              'Units',              '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>'],
+                ];
+                $linksAccounts = [
+                    ['admin.accounts.index',           'Chart of Accounts',  '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>'],
+                    ['admin.journal-entries.index',    'Journal Entries',    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>'],
+                ];
             @endphp
             @foreach($links as [$route, $label, $svgPath])
                 <a href="{{ route($route) }}"
@@ -142,6 +152,28 @@
             <p class="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Operations</p>
 
             @foreach($links2 as [$route, $label, $svgPath])
+                <a href="{{ route($route) }}"
+                   class="sidebar-link {{ request()->routeIs(str_replace('.index','',$route).'*') ? 'active' : '' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $svgPath !!}</svg>
+                    {{ $label }}
+                </a>
+            @endforeach
+
+            <div class="cyber-divider mx-4 my-3"></div>
+            <p class="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Inventory</p>
+
+            @foreach($linksInventory as [$route, $label, $svgPath])
+                <a href="{{ route($route) }}"
+                   class="sidebar-link {{ request()->routeIs(str_replace('.index','',$route).'*') ? 'active' : '' }}">
+                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $svgPath !!}</svg>
+                    {{ $label }}
+                </a>
+            @endforeach
+
+            <div class="cyber-divider mx-4 my-3"></div>
+            <p class="px-4 py-1 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Accounts</p>
+
+            @foreach($linksAccounts as [$route, $label, $svgPath])
                 <a href="{{ route($route) }}"
                    class="sidebar-link {{ request()->routeIs(str_replace('.index','',$route).'*') ? 'active' : '' }}">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{!! $svgPath !!}</svg>

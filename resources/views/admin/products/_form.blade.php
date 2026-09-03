@@ -17,6 +17,17 @@
             </select>
         </div>
         <div>
+            <label class="block text-sm font-medium mb-1">Unit of Measure</label>
+            <select name="unit_id" class="w-full border rounded px-3 py-2 text-sm">
+                <option value="">— No unit —</option>
+                @foreach($units as $unit)
+                    <option value="{{ $unit->id }}" {{ old('unit_id', $product->unit_id ?? '') == $unit->id ? 'selected' : '' }}>
+                        {{ $unit->name }} ({{ $unit->abbreviation }})
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div>
             <label class="block text-sm font-medium mb-1">SKU</label>
             <input type="text" name="sku" value="{{ old('sku', $product->sku ?? '') }}" required class="w-full border rounded px-3 py-2 text-sm">
         </div>

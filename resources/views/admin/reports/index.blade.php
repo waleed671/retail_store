@@ -4,127 +4,98 @@
 @section('content')
 
 {{-- Summary stats --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+<div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
     @php
         $summaryCards = [
-            ['Revenue This Month', 'Rs '.number_format($revenueMonth),   '#cffafe','#0891b2','<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'],
-            ['Revenue This Year',  'Rs '.number_format($revenueYear),    '#e0e7ff','#6366f1','<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'],
-            ['Total Orders',       number_format($totalOrders),           '#dcfce7','#16a34a','<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>'],
-            ['Avg Order Value',    'Rs '.number_format($avgOrderValue),   '#fef3c7','#d97706','<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>'],
+            ['Revenue This Month', 'Rs '.number_format($revenueMonth),  '#cffafe','#0891b2'],
+            ['Revenue This Year',  'Rs '.number_format($revenueYear),   '#e0e7ff','#6366f1'],
+            ['Total Orders',       number_format($totalOrders),          '#dcfce7','#16a34a'],
+            ['Avg Order Value',    'Rs '.number_format($avgOrderValue),  '#fef3c7','#d97706'],
+            ['Expenses This Year', 'Rs '.number_format($expensesYear),   '#fee2e2','#dc2626'],
+            ['Net Profit (Year)',  'Rs '.number_format($netProfit),      $netProfit >= 0 ? '#dcfce7' : '#fee2e2', $netProfit >= 0 ? '#16a34a' : '#dc2626'],
         ];
     @endphp
-    @foreach($summaryCards as $i => [$label,$value,$bg,$color,$path])
-        <div class="stat-card anim-up d{{ $i+1 }}">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style="background:{{ $bg }}">
-                <svg class="w-4 h-4" fill="none" stroke="{{ $color }}" viewBox="0 0 24 24">{!! $path !!}</svg>
+    @foreach($summaryCards as $i => [$label,$value,$bg,$color])
+        <div class="stat-card anim-up d{{ min($i+1,6) }}">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center mb-2" style="background:{{ $bg }}">
+                <div class="w-3 h-3 rounded-full" style="background:{{ $color }}"></div>
             </div>
-            <p class="text-xs text-gray-400 font-medium">{{ $label }}</p>
-            <p class="text-xl font-black text-gray-900 mt-0.5">{{ $value }}</p>
+            <p class="text-xs text-gray-400 font-medium leading-tight">{{ $label }}</p>
+            <p class="text-lg font-black text-gray-900 mt-0.5">{{ $value }}</p>
         </div>
     @endforeach
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+{{-- Row 1: Revenue area + Payment donut --}}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    {{-- Top 10 products --}}
-    <div class="glass-card rounded-2xl overflow-hidden anim-up d1">
-        <div class="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-            <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#f59e0b,#10b981)"></span>
-            <h2 class="font-bold text-gray-900 text-sm">Top 10 Products by Revenue</h2>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead style="background:linear-gradient(135deg,#f8f9ff,#f0f4ff)">
-                    <tr>
-                        <th class="text-left px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">#</th>
-                        <th class="text-left px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Product</th>
-                        <th class="text-right px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Qty</th>
-                        <th class="text-right px-4 py-2.5 text-xs font-bold text-gray-500 uppercase tracking-wider">Revenue</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-50">
-                    @forelse($topProducts as $i => $row)
-                        <tr class="hover:bg-indigo-50/30">
-                            <td class="px-4 py-2.5 text-xs text-gray-400 font-bold">{{ $i+1 }}</td>
-                            <td class="px-4 py-2.5 text-gray-700 font-medium text-xs">{{ $row->product_name }}</td>
-                            <td class="px-4 py-2.5 text-right">
-                                <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">{{ $row->total_qty }}</span>
-                            </td>
-                            <td class="px-4 py-2.5 text-right font-black text-xs" style="background:linear-gradient(135deg,#6366f1,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-                                Rs {{ number_format($row->total_revenue) }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="4" class="px-4 py-8 text-center text-gray-400 text-xs">No data yet.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+    <div class="glass-card rounded-2xl p-5 lg:col-span-2 anim-up d1">
+        <h2 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#6366f1,#06b6d4)"></span>
+            Daily Revenue — Last 30 Days
+        </h2>
+        <div id="chart-30day" style="min-height:240px"></div>
     </div>
 
-    {{-- Payment method breakdown --}}
-    <div class="glass-card rounded-2xl overflow-hidden anim-up d2">
-        <div class="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
-            <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#6366f1,#06b6d4)"></span>
-            <h2 class="font-bold text-gray-900 text-sm">Payment Method Breakdown</h2>
-        </div>
-        <div class="p-5 space-y-4">
-            @forelse($paymentBreakdown as $method)
-                @php
-                    $pct = $totalOrders > 0 ? round(($method->count / $totalOrders) * 100) : 0;
-                @endphp
-                <div>
-                    <div class="flex justify-between items-center mb-1.5">
-                        <span class="text-sm font-semibold text-gray-700 capitalize">{{ str_replace('_', ' ', $method->payment_method) }}</span>
-                        <div class="text-right">
-                            <span class="text-xs font-bold text-indigo-600">{{ $method->count }} orders</span>
-                            <span class="text-xs text-gray-400 ml-2">Rs {{ number_format($method->total) }}</span>
-                        </div>
-                    </div>
-                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full" style="width:{{ $pct }}%; background:linear-gradient(90deg,#6366f1,#06b6d4)"></div>
-                    </div>
-                    <p class="text-xs text-gray-400 mt-0.5">{{ $pct }}%</p>
-                </div>
-            @empty
-                <p class="text-center text-gray-400 text-sm py-8">No payment data yet.</p>
-            @endforelse
-        </div>
+    <div class="glass-card rounded-2xl p-5 anim-up d2">
+        <h2 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#f59e0b,#ef4444)"></span>
+            Payment Methods
+        </h2>
+        <div id="chart-payment" style="min-height:240px"></div>
     </div>
 </div>
 
-{{-- Daily sales - last 30 days --}}
-<div class="glass-card rounded-2xl overflow-hidden anim-up d3">
+{{-- Row 2: Monthly revenue vs expenses + Top products horizontal bar --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+    <div class="glass-card rounded-2xl p-5 anim-up d3">
+        <h2 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#10b981,#ef4444)"></span>
+            Revenue vs Expenses — {{ now()->year }}
+        </h2>
+        <div id="chart-rev-exp" style="min-height:240px"></div>
+    </div>
+
+    <div class="glass-card rounded-2xl p-5 anim-up d4">
+        <h2 class="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#f59e0b,#10b981)"></span>
+            Top 10 Products by Revenue
+        </h2>
+        <div id="chart-top-rev" style="min-height:240px"></div>
+    </div>
+</div>
+
+{{-- Daily sales table --}}
+<div class="glass-card rounded-2xl overflow-hidden anim-up d5">
     <div class="px-5 py-4 border-b border-gray-50 flex items-center gap-2">
         <span class="w-1 h-4 rounded-full inline-block" style="background:linear-gradient(180deg,#6366f1,#06b6d4)"></span>
-        <h2 class="font-bold text-gray-900 text-sm">Daily Revenue — Last 30 Days</h2>
+        <h2 class="font-bold text-gray-900 text-sm">Daily Breakdown — Last 30 Days</h2>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-sm">
             <thead style="background:linear-gradient(135deg,#f8f9ff,#f0f4ff)">
                 <tr>
-                    <th class="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                    <th class="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Orders</th>
-                    <th class="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Revenue</th>
-                    <th class="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-56">Bar</th>
+                    <th class="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase">Date</th>
+                    <th class="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase">Orders</th>
+                    <th class="text-right px-5 py-3 text-xs font-bold text-gray-500 uppercase">Revenue</th>
+                    <th class="text-left px-5 py-3 text-xs font-bold text-gray-500 uppercase w-48">Bar</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-50">
-                @php
-                    $maxRevenue = $last30Days->max('daily_revenue') ?: 1;
-                @endphp
+                @php $maxRevenue = $last30Days->max('daily_revenue') ?: 1; @endphp
                 @foreach($last30Days as $day)
                     @php $barWidth = round(($day->daily_revenue / $maxRevenue) * 100); @endphp
-                    <tr class="{{ $day->daily_revenue > 0 ? 'hover:bg-indigo-50/30' : '' }} transition-colors">
+                    <tr class="transition-colors hover:bg-indigo-50/30">
                         <td class="px-5 py-2.5 text-xs text-gray-600 font-medium">{{ \Carbon\Carbon::parse($day->date)->format('D, d M') }}</td>
                         <td class="px-5 py-2.5 text-right text-xs">
                             @if($day->orders_count > 0)
-                                <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-xs">{{ $day->orders_count }}</span>
+                                <span class="font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{{ $day->orders_count }}</span>
                             @else
-                                <span class="text-gray-300">0</span>
+                                <span class="text-gray-300">—</span>
                             @endif
                         </td>
-                        <td class="px-5 py-2.5 text-right text-xs font-bold {{ $day->daily_revenue > 0 ? '' : 'text-gray-300' }}" @if($day->daily_revenue > 0) style="background:linear-gradient(135deg,#6366f1,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;" @endif>
+                        <td class="px-5 py-2.5 text-right text-xs font-bold {{ $day->daily_revenue > 0 ? 'text-indigo-600' : 'text-gray-300' }}">
                             Rs {{ number_format($day->daily_revenue) }}
                         </td>
                         <td class="px-5 py-2.5">
@@ -138,4 +109,66 @@
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const base = {
+        chart: { toolbar: { show: false }, fontFamily: 'Inter, sans-serif', background: 'transparent' },
+        grid: { borderColor: 'rgba(99,102,241,0.08)', strokeDashArray: 4 },
+        tooltip: { theme: 'light' },
+        colors: ['#6366f1', '#ef4444', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6'],
+        dataLabels: { enabled: false },
+    };
+
+    // ── 30-day area chart ────────────────────────────────────────────────
+    new ApexCharts(document.getElementById('chart-30day'), {
+        ...base,
+        chart: { ...base.chart, type: 'area', height: 240 },
+        series: [{ name: 'Revenue (Rs)', data: @json($chartRevenue) }],
+        xaxis: { categories: @json($chartDates), tickAmount: 6, labels: { style: { fontSize: '10px' } } },
+        yaxis: { labels: { formatter: v => 'Rs ' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v), style: { fontSize: '10px' } } },
+        fill: { type: 'gradient', gradient: { shade: 'light', type: 'vertical', opacityFrom: 0.45, opacityTo: 0.05 } },
+        stroke: { curve: 'smooth', width: 2.5 },
+        markers: { size: 0, hover: { size: 4 } },
+    }).render();
+
+    // ── Payment donut ─────────────────────────────────────────────────────
+    new ApexCharts(document.getElementById('chart-payment'), {
+        ...base,
+        chart: { ...base.chart, type: 'donut', height: 240 },
+        series: @json($paymentTotals),
+        labels: @json($paymentLabels),
+        plotOptions: { pie: { donut: { size: '65%', labels: { show: true, total: { show: true, label: 'Total', formatter: function(w){ const total = w.globals.seriesTotals.reduce((a,b)=>a+b,0); return 'Rs '+(total>=1000?(total/1000).toFixed(1)+'k':total); } } } } } },
+        legend: { position: 'bottom', fontSize: '11px' },
+    }).render();
+
+    // ── Revenue vs Expenses grouped bar ───────────────────────────────────
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    new ApexCharts(document.getElementById('chart-rev-exp'), {
+        ...base,
+        chart: { ...base.chart, type: 'bar', height: 240 },
+        plotOptions: { bar: { borderRadius: 4, columnWidth: '70%', grouped: true } },
+        series: [
+            { name: 'Revenue', data: @json($monthlyRevenue) },
+            { name: 'Expenses', data: @json($monthlyExpenses) },
+        ],
+        xaxis: { categories: months, labels: { style: { fontSize: '10px' } } },
+        yaxis: { labels: { formatter: v => 'Rs ' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v), style: { fontSize: '10px' } } },
+        legend: { position: 'top', fontSize: '11px' },
+    }).render();
+
+    // ── Top 10 products horizontal bar ────────────────────────────────────
+    new ApexCharts(document.getElementById('chart-top-rev'), {
+        ...base,
+        chart: { ...base.chart, type: 'bar', height: 240 },
+        plotOptions: { bar: { horizontal: true, borderRadius: 4, barHeight: '60%' } },
+        series: [{ name: 'Revenue (Rs)', data: @json($topProductRevenues) }],
+        xaxis: { categories: @json($topProductNames), labels: { style: { fontSize: '9px' }, formatter: v => 'Rs ' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v) } },
+        yaxis: { labels: { style: { fontSize: '9px' }, maxWidth: 120 } },
+        dataLabels: { enabled: false },
+        fill: { type: 'gradient', gradient: { shade: 'light', type: 'horizontal', gradientToColors: ['#10b981'], stops: [0, 100] } },
+    }).render();
+});
+</script>
 @endsection

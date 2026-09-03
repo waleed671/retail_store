@@ -39,6 +39,11 @@
                 <label class="block text-xs font-semibold text-gray-500 mb-1">Address</label>
                 <textarea name="address" rows="2" class="input-cyber">{{ old('address') }}</textarea>
             </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 mb-1">Opening Balance (Rs)</label>
+                <input type="number" step="0.01" min="0" name="opening_balance" value="{{ old('opening_balance', '0') }}" class="input-cyber">
+                <p class="text-[10px] text-gray-400 mt-1">Amount owed before system was set up. Leave 0 for new vendors.</p>
+            </div>
             <div class="md:col-span-2">
                 <label class="block text-xs font-semibold text-gray-500 mb-1">Notes</label>
                 <textarea name="notes" rows="3" class="input-cyber" placeholder="Internal notes about this vendor...">{{ old('notes') }}</textarea>

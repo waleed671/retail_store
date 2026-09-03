@@ -11,16 +11,51 @@ class Vendor extends Model
 
     protected $fillable = [
         'name', 'contact_person', 'phone', 'email',
-        'address', 'city', 'balance', 'notes', 'is_active',
+        'address', 'city', 'opening_balance', 'notes', 'is_active',
     ];
 
     protected $casts = [
-        'balance'   => 'decimal:2',
-        'is_active' => 'boolean',
+        'opening_balance' => 'decimal:2',
+        'is_active'       => 'boolean',
     ];
 
     public function purchaseOrders()
     {
         return $this->hasMany(PurchaseOrder::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(VendorPayment::class);
+    }
+
+    /**
+     * Total value of all received purchase orders.
+     */
+    public function totalPurchased(): float
+    {
+        return (float) $this->purchaseOrders()
+            ->where('status', 'received')
+            ->sum('total_amount');
+    }
+
+    /**
+     * Total payments made to this vendor.
+     */
+    public function totalPaid(): float
+    {
+        return (float) $this->payments()->sum('amount');
+    }
+
+    /**
+     * Current balance due:
+     * opening_balance + received PO value − payments made
+     */
+    public function currentBalance(): float
+    {
+        return round(
+            (float) $this->opening_balance + $this->totalPurchased() - $this->totalPaid(),
+            2
+        );
     }
 }

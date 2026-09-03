@@ -54,6 +54,56 @@ class DashboardController extends Controller
             ->take(8)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentOrders', 'topProducts', 'lowStockProducts'));
+        // ── Chart Data ───────────────────────────────────────────────────────
+
+        // Last 7 days daily revenue
+        $dailySalesRaw = Order::select(
+                DB::raw('DATE(created_at) as sale_date'),
+                DB::raw('SUM(total) as daily_revenue'),
+                DB::raw('COUNT(*) as orders_count')
+            )
+            ->where('created_at', '>=', now()->subDays(6)->startOfDay())
+            ->whereNotIn('status', ['cancelled', 'returned'])
+            ->groupBy('sale_date')
+            ->get()
+            ->keyBy('sale_date');
+
+        $last7Days = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i)->format('Y-m-d');
+            $last7Days[] = [
+                'date'    => now()->subDays($i)->format('d M'),
+                'revenue' => (float) ($dailySalesRaw[$date]->daily_revenue ?? 0),
+                'orders'  => (int)   ($dailySalesRaw[$date]->orders_count  ?? 0),
+            ];
+        }
+
+        // Order status breakdown (today)
+        $orderStatusToday = Order::where('created_at', '>=', $today)
+            ->select('status', DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        // Monthly revenue this year (12 months)
+        $monthlyRevenueRaw = Order::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('SUM(total) as revenue')
+            )
+            ->whereYear('created_at', now()->year)
+            ->whereNotIn('status', ['cancelled', 'returned'])
+            ->groupBy('month')
+            ->pluck('revenue', 'month')
+            ->toArray();
+
+        $monthlyRevenue = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $monthlyRevenue[] = (float) ($monthlyRevenueRaw[$m] ?? 0);
+        }
+
+        return view('admin.dashboard', compact(
+            'stats', 'recentOrders', 'topProducts', 'lowStockProducts',
+            'last7Days', 'orderStatusToday', 'monthlyRevenue'
+        ));
     }
 }

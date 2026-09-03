@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -27,8 +28,9 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::orderBy('name')->get();
+        $units      = Unit::orderBy('name')->get();
 
-        return view('admin.products.create', compact('categories'));
+        return view('admin.products.create', compact('categories', 'units'));
     }
 
     public function store(Request $request)
@@ -49,8 +51,9 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::orderBy('name')->get();
+        $units      = Unit::orderBy('name')->get();
 
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('admin.products.edit', compact('product', 'categories', 'units'));
     }
 
     public function update(Request $request, Product $product)
@@ -88,6 +91,7 @@ class ProductController extends Controller
     {
         $data = $request->validate([
             'category_id' => ['required', 'exists:categories,id'],
+            'unit_id'     => ['nullable', 'exists:units,id'],
             'name' => ['required', 'string', 'max:255'],
             'sku' => ['required', 'string', 'max:100', 'unique:products,sku'.($ignoreId ? ",{$ignoreId}" : '')],
             'description' => ['nullable', 'string'],
